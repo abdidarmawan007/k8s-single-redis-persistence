@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  serviceName: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:5.0-alpine
+          imagePullPolicy: Always
+          #args: ["--appendonly", "no","--maxmemory-policy", "volatile-lfu"]
+          args: ["--appendonly", "yes", "--save", "900", "1", "--save", "30", "2"]
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+              name: redis
+          resources:
+              limits:
+                 cpu: "1"
+                 memory: "1024Mi"
+      volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-volumeclaim
+---
+## config for service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+  selector:
+    app: redis
+---
+## config pvc
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-volumeclaim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: pd-ssd-redis
+  resources:
+    requests:
+      storage: 35Gi                      
+---
+## config storage class GCP (SSD/HDD)
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: pd-ssd-redis
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
