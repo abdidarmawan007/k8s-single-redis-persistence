@@ -10,7 +10,7 @@ spec:
   storageClassName: pd-ssd-redis
   resources:
     requests:
-      storage: 25Gi
+      storage: 25Gi #size ssd storage use by redis for store data
 ---
 ## config storage class GCP (SSD/HDD)
 kind: StorageClass
