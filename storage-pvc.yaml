@@ -1,0 +1,22 @@
+## config pvc
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redis-volumeclaim
+  #namespace: staging
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: pd-ssd-redis
+  resources:
+    requests:
+      storage: 25Gi
+---
+## config storage class GCP (SSD/HDD)
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: pd-ssd-redis
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
