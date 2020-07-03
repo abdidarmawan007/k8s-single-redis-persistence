@@ -27,9 +27,9 @@ spec:
               limits:
                  cpu: "1"
                  memory: "1024Mi"
-      volumeMounts:
-            - name: data
-              mountPath: /data
+          volumeMounts:
+          - name: redis-data
+            mountPath: /data
       volumes:
         - name: redis-data
           persistentVolumeClaim:
@@ -62,7 +62,7 @@ spec:
   storageClassName: pd-ssd-redis
   resources:
     requests:
-      storage: 35Gi                      
+      storage: 25Gi                      
 ---
 ## config storage class GCP (SSD/HDD)
 kind: StorageClass
